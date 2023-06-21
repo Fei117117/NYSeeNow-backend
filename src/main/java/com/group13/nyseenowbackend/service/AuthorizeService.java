@@ -19,10 +19,10 @@ public class AuthorizeService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if(username == null)
-            throw new AuthenticationServiceException("User name cannot be empty.");
+            throw new AuthenticationServiceException("Username cannot be empty.");
         Account account = mapper.findAccountByNameOrEmail(username);
         if(account == null)
-            throw new AuthenticationServiceException("Username or Password is wrong.");
+            throw new AuthenticationServiceException("Invalid username or password.");
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())

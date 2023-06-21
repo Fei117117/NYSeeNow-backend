@@ -16,10 +16,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import javax.sql.DataSource;
 import java.io.IOException;
 
 @Configuration
@@ -29,8 +32,11 @@ public class SecurityConfiguration {
     @Resource
     AuthorizeService authorizeService;
 
+    @Resource
+    DataSource dataSource;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(configurationSource())) // Apply the CORS config
                 .authorizeRequests(authorizeRequests -> authorizeRequests
@@ -43,9 +49,21 @@ public class SecurityConfiguration {
                         .logoutUrl("/api/auth/logout"))
                 .csrf(csrf -> csrf
                         .disable())
+                .rememberMe(rememberMe -> rememberMe
+                        .tokenValiditySeconds(3600 * 24 * 7) // 7 days
+                        .rememberMeParameter("remember")
+                        .tokenRepository(repository))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(this::authenticationFailureHandler))
                 .build();
+    }
+
+    @Bean
+    public PersistentTokenRepository tokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        jdbcTokenRepository.setCreateTableOnStartup(false);
+        return jdbcTokenRepository;
     }
 
     private CorsConfigurationSource configurationSource(){

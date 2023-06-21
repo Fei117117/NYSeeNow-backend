@@ -3,6 +3,7 @@ package com.group13.nyseenowbackend.service;
 import com.group13.nyseenowbackend.entity.Account;
 import com.group13.nyseenowbackend.mapper.UserMapper;
 import jakarta.annotation.Resource;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,10 +19,10 @@ public class AuthorizeService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         if(username == null)
-            throw new UsernameNotFoundException("User name cannot be empty.");
+            throw new AuthenticationServiceException("User name cannot be empty.");
         Account account = mapper.findAccountByNameOrEmail(username);
         if(account == null)
-            throw new UsernameNotFoundException("Username or Password is wrong.");
+            throw new AuthenticationServiceException("Username or Password is wrong.");
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())

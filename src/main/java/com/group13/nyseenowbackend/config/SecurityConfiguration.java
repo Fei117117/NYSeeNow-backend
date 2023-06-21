@@ -50,9 +50,7 @@ public class SecurityConfiguration {
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(authorizeService);
     }
-
-
-
+    
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();

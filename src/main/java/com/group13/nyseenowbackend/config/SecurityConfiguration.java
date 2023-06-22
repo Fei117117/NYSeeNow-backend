@@ -2,7 +2,7 @@ package com.group13.nyseenowbackend.config;
 
 import com.alibaba.fastjson.JSONObject;
 import com.group13.nyseenowbackend.entity.RestBean;
-import com.group13.nyseenowbackend.service.AuthorizeService;
+import com.group13.nyseenowbackend.service.impl.AuthorizeServiceimpl;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ import java.io.IOException;
 public class SecurityConfiguration {
 
     @Resource
-    AuthorizeService authorizeService;
+    AuthorizeServiceimpl authorizeService;
 
     @Resource
     DataSource dataSource;
@@ -55,6 +55,7 @@ public class SecurityConfiguration {
                 .build();
     }
 
+    /*use jdbc to store remember me token*/
     @Bean
     public PersistentTokenRepository tokenRepository(){
         JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
@@ -64,7 +65,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeService> authenticationManager(HttpSecurity security) throws Exception {
+    public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeServiceimpl> authenticationManager(HttpSecurity security) throws Exception {
         return security
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(authorizeService);

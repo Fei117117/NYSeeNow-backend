@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,9 +19,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -38,7 +36,6 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
         return http
-                .cors(cors -> cors.configurationSource(configurationSource())) // Apply the CORS config
                 .authorizeRequests(authorizeRequests -> authorizeRequests
                         .anyRequest().authenticated())
                 .formLogin(formLogin -> formLogin
@@ -66,18 +63,6 @@ public class SecurityConfiguration {
         return jdbcTokenRepository;
     }
 
-    private CorsConfigurationSource configurationSource(){
-        CorsConfiguration cors = new CorsConfiguration();
-        cors.addAllowedOriginPattern("*");
-        cors.setAllowCredentials(true);
-        cors.addAllowedHeader("*");
-        cors.addAllowedMethod("*");
-        cors.addExposedHeader("*");
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cors);
-        return source;
-    }
-
     @Bean
     public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeService> authenticationManager(HttpSecurity security) throws Exception {
         return security
@@ -92,8 +77,13 @@ public class SecurityConfiguration {
 
     public void authenticationFailureHandler(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         response.setCharacterEncoding("utf-8");
-        response.getWriter().write(JSONObject.toJSONString(RestBean.failure(401, exception.getMessage())));
+        if (exception instanceof BadCredentialsException) {
+            response.getWriter().write(JSONObject.toJSONString(RestBean.failure(401, "Invalid username or password.")));
+        } else {
+            response.getWriter().write(JSONObject.toJSONString(RestBean.failure(401, exception.getMessage())));
+        }
     }
+
 
     public void authenticationSuccessHandler(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setCharacterEncoding("utf-8");

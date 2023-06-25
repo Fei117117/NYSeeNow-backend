@@ -37,6 +37,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
         return http
                 .authorizeRequests(authorizeRequests -> authorizeRequests
+                        .requestMatchers("/api/auth/register").permitAll() // Allow access to register endpoint
                         .anyRequest().authenticated())
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/api/auth/login")

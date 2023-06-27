@@ -1,4 +1,4 @@
-package com.group13.nyseenowbackend.entity;
+package com.group13.nyseenowbackend.dto;
 
 import lombok.Data;
 

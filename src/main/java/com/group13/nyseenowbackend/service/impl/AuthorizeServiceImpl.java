@@ -1,6 +1,6 @@
 package com.group13.nyseenowbackend.service.impl;
 
-import com.group13.nyseenowbackend.entity.Account;
+import com.group13.nyseenowbackend.model.Account;
 import com.group13.nyseenowbackend.mapper.UserMapper;
 import com.group13.nyseenowbackend.service.AuthorizeService;
 import jakarta.annotation.Resource;
@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthorizeServiceimpl implements AuthorizeService {
+public class AuthorizeServiceImpl implements AuthorizeService {
 
     @Resource
     UserMapper mapper;

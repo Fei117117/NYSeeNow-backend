@@ -1,8 +1,8 @@
 package com.group13.nyseenowbackend.config;
 
 import com.alibaba.fastjson.JSONObject;
-import com.group13.nyseenowbackend.entity.RestBean;
-import com.group13.nyseenowbackend.service.impl.AuthorizeServiceimpl;
+import com.group13.nyseenowbackend.dto.RestBean;
+import com.group13.nyseenowbackend.service.impl.AuthorizeServiceImpl;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ import java.io.IOException;
 public class SecurityConfiguration {
 
     @Resource
-    AuthorizeServiceimpl authorizeService;
+    AuthorizeServiceImpl authorizeService;
 
     @Resource
     DataSource dataSource;
@@ -66,7 +66,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeServiceimpl> authenticationManager(HttpSecurity security) throws Exception {
+    public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeServiceImpl> authenticationManager(HttpSecurity security) throws Exception {
         return security
                 .getSharedObject(AuthenticationManagerBuilder.class)
                 .userDetailsService(authorizeService);

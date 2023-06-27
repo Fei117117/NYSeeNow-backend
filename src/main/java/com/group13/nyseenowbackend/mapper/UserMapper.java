@@ -1,6 +1,6 @@
 package com.group13.nyseenowbackend.mapper;
 
-import com.group13.nyseenowbackend.entity.Account;
+import com.group13.nyseenowbackend.model.Account;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

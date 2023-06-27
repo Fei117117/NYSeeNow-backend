@@ -1,6 +1,6 @@
 package com.group13.nyseenowbackend.controller;
 
-import com.group13.nyseenowbackend.entity.RestBean;
+import com.group13.nyseenowbackend.dto.RestBean;
 import com.group13.nyseenowbackend.service.AuthorizeService;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotEmpty;

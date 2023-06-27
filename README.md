@@ -1,4 +1,5 @@
 # NYSeeNow-backend setup
+0. Before you start, send me your ip address to get access to the database
 
 1. Create a folder for the NYC-backend repository 
 

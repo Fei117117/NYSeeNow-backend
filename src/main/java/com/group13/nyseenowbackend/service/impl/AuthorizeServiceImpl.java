@@ -55,5 +55,28 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         } // Registration failed, return error message
     }
 
+    @Override
+    public String resetUser(String email, String newUsername, String newPassword){
+        Account existingAccount = mapper.findAccountByEmail(email);
+        if (existingAccount == null) {
+            return "Email does not exist";
+        }
+
+        // Check if the new username already exists
+        Account existingUsernameAccount = mapper.findAccountByName(newUsername);
+        if (existingUsernameAccount != null) {
+            return "New username already exists";
+        }
+
+        // If the email exists and the new username doesn't exist, proceed with the update
+        existingAccount.setUsername(newUsername);
+        existingAccount.setPassword(encoder.encode(newPassword));
+
+        if (mapper.updateAccount(existingAccount) > 0){
+            return null; // Reset successful, no error message
+        } else {
+            return "Error resetting account";
+        } // Reset failed, return error message
+    }
 
 }

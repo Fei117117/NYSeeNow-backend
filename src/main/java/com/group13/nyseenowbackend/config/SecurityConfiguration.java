@@ -34,10 +34,10 @@ public class SecurityConfiguration {
     DataSource dataSource;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, PersistentTokenRepository repository) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/auth/**").permitAll() // Allow access to register endpoint
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/api/auth/login")
@@ -47,22 +47,9 @@ public class SecurityConfiguration {
                         .logoutUrl("/api/auth/logout"))
                 .csrf(csrf -> csrf
                         .disable())
-                .rememberMe(rememberMe -> rememberMe
-                        .tokenValiditySeconds(3600 * 24 * 7) // 7 days
-                        .rememberMeParameter("remember")
-                        .tokenRepository(repository))
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(this::authenticationFailureHandler))
                 .build();
-    }
-
-    /*use jdbc to store remember me token*/
-    @Bean
-    public PersistentTokenRepository tokenRepository(){
-        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
-        jdbcTokenRepository.setDataSource(dataSource);
-        jdbcTokenRepository.setCreateTableOnStartup(false);
-        return jdbcTokenRepository;
     }
 
     @Bean

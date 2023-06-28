@@ -47,6 +47,33 @@ public class AuthorizeController {
         }
     }
 
+    @PostMapping("/reset")
+    public RestBean<String> resetUser(
+            @RequestParam("email")
+            @NotEmpty(message = "Email is required")
+            @Pattern(regexp = EMAIL_REGEX, message = "Invalid email format")
+            String email,
+            @RequestParam("newUsername")
+            @Length(min = 4, max = 20)
+            @Pattern(regexp = NAME_REGEX, message = "Invalid username format")
+            String newUsername,
+            @RequestParam("newPassword")
+            @Length(min = 6, max = 16)
+            @Pattern(regexp = PASS_REGEX, message = "Invalid password format")
+            String newPassword)
+    {
+        String resetErrorMessage = service.resetUser(email, newUsername, newPassword);
+        if (resetErrorMessage == null) {
+            return RestBean.success("Reset Successfully");
+        } else if (resetErrorMessage.equals("Email does not exist")) {
+            return RestBean.failure(400, "Email does not exist");
+        } else {
+            return RestBean.failure(400, "Reset Failed");
+        }
+    }
+
+
+
 
 
 }

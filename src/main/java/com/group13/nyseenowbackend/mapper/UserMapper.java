@@ -4,6 +4,7 @@ import com.group13.nyseenowbackend.model.Account;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface UserMapper {
@@ -15,4 +16,8 @@ public interface UserMapper {
 
     @Insert("insert into \"UserAccount\" (username, password, email) values (#{username}, #{password}, #{email})")
     int creatAccount(String username, String password, String email);
+
+    @Update("UPDATE \"UserAccount\" SET username=#{username}, password=#{password} WHERE email=#{email}")
+    int updateAccount(Account account);
+
 }

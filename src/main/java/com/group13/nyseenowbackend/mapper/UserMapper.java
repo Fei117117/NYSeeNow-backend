@@ -7,8 +7,11 @@ import org.apache.ibatis.annotations.Select;
 
 @Mapper
 public interface UserMapper {
-    @Select("SELECT * FROM \"UserAccount\" WHERE username = #{text} OR email = #{text}")
-    Account findAccountByNameOrEmail(String text);
+    @Select("SELECT * FROM \"UserAccount\" WHERE username = #{text}")
+    Account findAccountByName(String text);
+
+    @Select("SELECT * FROM \"UserAccount\" WHERE email = #{email}")
+    Account findAccountByEmail(String email);
 
     @Insert("insert into \"UserAccount\" (username, password, email) values (#{username}, #{password}, #{email})")
     int creatAccount(String username, String password, String email);

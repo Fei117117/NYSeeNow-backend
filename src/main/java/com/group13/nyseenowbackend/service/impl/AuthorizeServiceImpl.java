@@ -25,7 +25,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
             throw new BadCredentialsException("Username cannot be empty.");
         }
 
-        Account account = mapper.findAccountByNameOrEmail(username);
+        Account account = mapper.findAccountByName(username);
         if (account == null) {
             throw new BadCredentialsException("Invalid username or password.");
         }
@@ -40,9 +40,19 @@ public class AuthorizeServiceImpl implements AuthorizeService {
     @Override
     public String validateAndRegister(String username, String password, String email){
         password = encoder.encode(password);
+
+        // Check if the email already exists in the database
+        Account existingAccount = mapper.findAccountByEmail(email);
+        if (existingAccount != null) {
+            return "Email already exists";
+        }
+
+        // Proceed with creating a new account
         if (mapper.creatAccount(username, password, email) > 0){
-            return null;
-        } else return ("error!");
+            return null; // Registration successful, no error message
+        } else {
+            return "Error creating account";
+        } // Registration failed, return error message
     }
 
 

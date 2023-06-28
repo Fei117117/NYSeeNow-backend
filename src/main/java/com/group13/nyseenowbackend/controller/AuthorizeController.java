@@ -36,11 +36,15 @@ public class AuthorizeController {
                                              @Pattern(regexp = EMAIL_REGEX, message = "Invalid email format")
                                              String email)
     {
-        String s = service.validateAndRegister(username, password, email);
-        if(s == null)
+
+        String registrationErrorMessage = service.validateAndRegister(username, password, email);
+        if (registrationErrorMessage == null) {
             return RestBean.success("Register Successfully");
-        else
+        } else if (registrationErrorMessage.equals("Email already exists")) {
+            return RestBean.failure(400, "Email already exists");
+        } else {
             return RestBean.failure(400, "Register Failed");
+        }
     }
 
 

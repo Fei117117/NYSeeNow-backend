@@ -13,12 +13,19 @@ public class NySeeNowBackendApplication {
         SpringApplication.run(NySeeNowBackendApplication.class, args);
     }
 
+    // Bean for configuring cross-origin resource sharing (CORS)
     @Bean
     public WebMvcConfigurer configure(){
         return new WebMvcConfigurer(){
 
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+                // Add CORS mappings
+                // Add mapping for all endpoints ("/*")
+                // Allow all origins
+                // Allow GET, POST, PUT, DELETE methods
+                // Allow all headers
+                // Allow credentials
                 registry.addMapping("/*").allowedOrigins("")
                         .allowedMethods("GET", "POST", "PUT", "DELETE").allowedHeaders("*").allowCredentials(true);
             }

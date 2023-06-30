@@ -19,17 +19,20 @@ public class AuthorizeServiceImpl implements AuthorizeService {
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
+    // Load user details by username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Check for null or empty username
         if (username == null || username.trim().isEmpty()) {
             throw new BadCredentialsException("Username cannot be empty.");
         }
-
+        // Retrieve account from database
         Account account = mapper.findAccountByName(username);
+        // Check if account exists
         if (account == null) {
             throw new BadCredentialsException("Invalid username or password.");
         }
-
+        // Return UserDetails object
         return User
                 .withUsername(account.getUsername())
                 .password(account.getPassword())
@@ -37,17 +40,20 @@ public class AuthorizeServiceImpl implements AuthorizeService {
                 .build();
     };
 
+    // Validate and register a user
     @Override
     public String validateAndRegister(String username, String password, String email){
+        // Encode password
         password = encoder.encode(password);
 
         // Check if the email already exists in the database
         Account existingAccount = mapper.findAccountByEmail(email);
+        // If email exists, return error message
         if (existingAccount != null) {
             return "Email already exists";
         }
 
-        // Proceed with creating a new account
+        // If email does not exist, create new account
         if (mapper.creatAccount(username, password, email) > 0){
             return null; // Registration successful, no error message
         } else {
@@ -55,15 +61,19 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         } // Registration failed, return error message
     }
 
+    // Reset user credentials
     @Override
     public String resetUser(String email, String newUsername, String newPassword){
+        // Check if the email exists
         Account existingAccount = mapper.findAccountByEmail(email);
+        // If email does not exist, return error message
         if (existingAccount == null) {
             return "Email does not exist";
         }
 
         // Check if the new username already exists
         Account existingUsernameAccount = mapper.findAccountByName(newUsername);
+        // If username exists, return error message
         if (existingUsernameAccount != null) {
             return "New username already exists";
         }
@@ -72,6 +82,7 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         existingAccount.setUsername(newUsername);
         existingAccount.setPassword(encoder.encode(newPassword));
 
+        // Update account in database
         if (mapper.updateAccount(existingAccount) > 0){
             return null; // Reset successful, no error message
         } else {

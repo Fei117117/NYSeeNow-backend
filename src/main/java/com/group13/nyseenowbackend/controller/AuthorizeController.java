@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+// Controller for authorization related APIs
 @RestController
 @RequestMapping("/api/auth")
 public class AuthorizeController {
@@ -18,10 +19,12 @@ public class AuthorizeController {
     @Resource
     AuthorizeService service;
 
+    // Regex for validating email, username and password
     private final String EMAIL_REGEX = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$";
     private final String NAME_REGEX ="^[a-zA-Z0-9_-]{4,20}$";
     private final String PASS_REGEX ="(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[a-zA-Z\\d]{6,16}$";
 
+    // API endpoint for user registration
     @PostMapping("/register")
     public RestBean<String> registerUser(@RequestParam("username")
                                              @Length(min = 4, max = 20)
@@ -36,7 +39,7 @@ public class AuthorizeController {
                                              @Pattern(regexp = EMAIL_REGEX, message = "Invalid email format")
                                              String email)
     {
-
+        // Handle registration and return response
         String registrationErrorMessage = service.validateAndRegister(username, password, email);
         if (registrationErrorMessage == null) {
             return RestBean.success("Register Successfully");
@@ -47,6 +50,7 @@ public class AuthorizeController {
         }
     }
 
+    // API endpoint for resetting user details
     @PostMapping("/reset")
     public RestBean<String> resetUser(
             @RequestParam("email")
@@ -62,6 +66,7 @@ public class AuthorizeController {
             @Pattern(regexp = PASS_REGEX, message = "Invalid password format")
             String newPassword)
     {
+        // Handle user reset and return response
         String resetErrorMessage = service.resetUser(email, newUsername, newPassword);
         if (resetErrorMessage == null) {
             return RestBean.success("Reset Successfully");

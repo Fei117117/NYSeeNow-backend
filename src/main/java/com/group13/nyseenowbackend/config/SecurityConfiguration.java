@@ -17,12 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
 import javax.sql.DataSource;
 import java.io.IOException;
 
+// Configure Spring Security for the application
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -33,25 +31,28 @@ public class SecurityConfiguration {
     @Resource
     DataSource dataSource;
 
+    // Define security rules for HTTP requests
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+                // Specifies access rules for different routes
                 .authorizeRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/auth/**").permitAll() // Permit all requests to '/api/auth/**'
+                        .anyRequest().authenticated()) // All other requests must be authenticated(logged in)
                 .formLogin(formLogin -> formLogin
-                        .loginProcessingUrl("/api/auth/login")
-                        .successHandler(this::authenticationSuccessHandler)
-                        .failureHandler(this::authenticationFailureHandler))
+                        .loginProcessingUrl("/api/auth/login") // Define login URL
+                        .successHandler(this::authenticationSuccessHandler) // Define success handler
+                        .failureHandler(this::authenticationFailureHandler)) // Define failure handler
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout"))
+                        .logoutUrl("/api/auth/logout")) // Define logout URL
                 .csrf(csrf -> csrf
-                        .disable())
+                        .disable()) // Disables CSRF tokens
                 .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(this::authenticationFailureHandler))
+                        .authenticationEntryPoint(this::authenticationFailureHandler)) // Actions on unauthenticated access
                 .build();
     }
 
+    // Defines how to validate user's login details
     @Bean
     public DaoAuthenticationConfigurer<AuthenticationManagerBuilder, AuthorizeServiceImpl> authenticationManager(HttpSecurity security) throws Exception {
         return security
@@ -59,11 +60,13 @@ public class SecurityConfiguration {
                 .userDetailsService(authorizeService);
     }
 
+    // Use BCrypt to check passwords.
     @Bean
     public BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
+    // Define authentication failure handler
     public void authenticationFailureHandler(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
         response.setCharacterEncoding("utf-8");
         if (exception instanceof BadCredentialsException) {
@@ -73,7 +76,7 @@ public class SecurityConfiguration {
         }
     }
 
-
+    // Define authentication success handler
     public void authenticationSuccessHandler(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         response.setCharacterEncoding("utf-8");
         response.getWriter().write(JSONObject.toJSONString(RestBean.success("LOGGED IN!")));

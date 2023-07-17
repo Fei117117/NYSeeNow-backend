@@ -38,6 +38,7 @@ public class SecurityConfiguration {
                 // Specifies access rules for different routes
                 .authorizeRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/**").permitAll() // Permit all requests to '/api/auth/**'
+                        .requestMatchers("/subway/predict").permitAll() // Permit all requests to '/api/auth/**'
                         .anyRequest().authenticated()) // All other requests must be authenticated(logged in)
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/api/auth/login") // Define login URL

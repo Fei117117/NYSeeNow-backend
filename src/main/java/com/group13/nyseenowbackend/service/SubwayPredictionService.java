@@ -29,6 +29,7 @@ public class SubwayPredictionService {
         requestBody.put("day", date);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
         ResponseEntity<Map> responseEntity = restTemplate.exchange(
                 "http://localhost:5001/predict",
                 HttpMethod.POST,

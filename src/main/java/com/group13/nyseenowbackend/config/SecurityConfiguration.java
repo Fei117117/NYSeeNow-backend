@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                 .authorizeRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/api/auth/**").permitAll() // Permit all requests to '/api/auth/**'
                         .requestMatchers("/itinerary/predict").permitAll()
-                        .requestMatchers("/attraction").permitAll()
+                        .requestMatchers("/attraction/predict").permitAll()
                         .anyRequest().authenticated()) // All other requests must be authenticated(logged in)
                 .formLogin(formLogin -> formLogin
                         .loginProcessingUrl("/api/auth/login") // Define login URL

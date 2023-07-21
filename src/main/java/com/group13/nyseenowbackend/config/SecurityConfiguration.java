@@ -40,6 +40,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**").permitAll() // Permit all requests to '/api/auth/**'
                         .requestMatchers("/itinerary/predict").permitAll()
                         .requestMatchers("/attraction/predict").permitAll()
+                        .requestMatchers("/attractions/fetch").permitAll()
                         .requestMatchers("/trip/**").permitAll()
                         .anyRequest().authenticated()) // All other requests must be authenticated(logged in)
                 .formLogin(formLogin -> formLogin

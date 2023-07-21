@@ -1,21 +1,43 @@
 package com.group13.nyseenowbackend.model;
-import java.util.Map;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "Attractions")
 public class Attraction {
-    private Map<String, Double> position;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "attraction_id")
+    private int attractionId;
+
+    @Column(name = "name")
     private String name;
-    private String type;
-    private AllDetails allDetails;
-    private String day;
 
-    // Getters and Setters
+    @Column(name = "tourism")
+    private String tourism;
 
-    public Map<String, Double> getPosition() {
-        return position;
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "opening_hours")
+    private String openingHours;
+
+    @Column(name = "website")
+    private String website;
+
+    @Column(name = "latitude")
+    private double latitude;
+
+    @Column(name = "longitude")
+    private double longitude;
+
+    public int getAttractionId() {
+        return attractionId;
     }
 
-    public void setPosition(Map<String, Double> position) {
-        this.position = position;
+    public void setAttractionId(int attractionId) {
+        this.attractionId = attractionId;
     }
 
     public String getName() {
@@ -26,132 +48,52 @@ public class Attraction {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getTourism() {
+        return tourism;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setTourism(String tourism) {
+        this.tourism = tourism;
     }
 
-    public AllDetails getAllDetails() {
-        return allDetails;
+    public String getDescription() {
+        return description;
     }
 
-    public void setAllDetails(AllDetails allDetails) {
-        this.allDetails = allDetails;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public String getDay() {
-        return day;
+    public String getOpeningHours() {
+        return openingHours;
     }
 
-    public void setDay(String day) {
-        this.day = day;
+    public void setOpeningHours(String openingHours) {
+        this.openingHours = openingHours;
     }
 
-    public static class AllDetails {
-        private String type;
-        private Map<String, Properties> properties;
-        private Geometry geometry;
-
-        // Getters and Setters
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public Map<String, Properties> getProperties() {
-            return properties;
-        }
-
-        public void setProperties(Map<String, Properties> properties) {
-            this.properties = properties;
-        }
-
-        public Geometry getGeometry() {
-            return geometry;
-        }
-
-        public void setGeometry(Geometry geometry) {
-            this.geometry = geometry;
-        }
+    public String getWebsite() {
+        return website;
     }
 
-    public static class Properties {
-        private String name;
-        private String tourism;
-        private String description;
-        private String opening_hours;
-        private String website;
-
-        // Getters and Setters
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getTourism() {
-            return tourism;
-        }
-
-        public void setTourism(String tourism) {
-            this.tourism = tourism;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public String getOpening_hours() {
-            return opening_hours;
-        }
-
-        public void setOpening_hours(String opening_hours) {
-            this.opening_hours = opening_hours;
-        }
-
-        public String getWebsite() {
-            return website;
-        }
-
-        public void setWebsite(String website) {
-            this.website = website;
-        }
+    public void setWebsite(String website) {
+        this.website = website;
     }
 
-    public static class Geometry {
-        private String type;
-        private double[] coordinates;
-
-        // Getters and Setters
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public double[] getCoordinates() {
-            return coordinates;
-        }
-
-        public void setCoordinates(double[] coordinates) {
-            this.coordinates = coordinates;
-        }
+    public double getLatitude() {
+        return latitude;
     }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
 }

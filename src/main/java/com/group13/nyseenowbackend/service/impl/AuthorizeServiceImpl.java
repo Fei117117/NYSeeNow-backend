@@ -1,9 +1,9 @@
 package com.group13.nyseenowbackend.service.impl;
 
-import com.group13.nyseenowbackend.model.Account;
-import com.group13.nyseenowbackend.mapper.UserMapper;
+import com.group13.nyseenowbackend.model.UserAccount;
+import com.group13.nyseenowbackend.repository.UserAccountRepository;
 import com.group13.nyseenowbackend.service.AuthorizeService;
-import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,11 +11,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthorizeServiceImpl implements AuthorizeService {
 
-    @Resource
-    UserMapper mapper;
+    @Autowired
+    UserAccountRepository userAccountRepository;
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
@@ -26,19 +28,23 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         if (username == null || username.trim().isEmpty()) {
             throw new BadCredentialsException("Username cannot be empty.");
         }
+
         // Retrieve account from database
-        Account account = mapper.findAccountByName(username);
+        Optional<UserAccount> userAccountOptional = userAccountRepository.findByUsername(username);
+
         // Check if account exists
-        if (account == null) {
-            throw new BadCredentialsException("Invalid username or password.");
-        }
+        UserAccount userAccount = userAccountOptional.orElseThrow(
+                () -> new BadCredentialsException("Invalid username or password.")
+        );
+
         // Return UserDetails object
         return User
-                .withUsername(account.getUsername())
-                .password(account.getPassword())
+                .withUsername(userAccount.getUsername())
+                .password(userAccount.getPassword())
                 .roles("user")
                 .build();
-    };
+    }
+
 
     // Validate and register a user
     @Override
@@ -47,34 +53,40 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         password = encoder.encode(password);
 
         // Check if the email already exists in the database
-        Account existingAccount = mapper.findAccountByEmail(email);
+        Optional<UserAccount> existingAccount = userAccountRepository.findByEmail(email);
         // If email exists, return error message
-        if (existingAccount != null) {
+        if (existingAccount.isPresent()) {
             return "Email already exists";
         }
 
         // If email does not exist, create new account
-        if (mapper.creatAccount(username, password, email) > 0){
-            return null; // Registration successful, no error message
-        } else {
-            return "Error creating account";
-        } // Registration failed, return error message
+        UserAccount userAccount = new UserAccount();
+        userAccount.setUsername(username);
+        userAccount.setPassword(password);
+        userAccount.setEmail(email);
+        userAccountRepository.save(userAccount);
+
+        return null; // Registration successful, no error message
     }
 
     // Reset user credentials
     @Override
-    public String resetUser(String email, String newUsername, String newPassword){
+    public String resetUser(String email, String newUsername, String newPassword) {
         // Check if the email exists
-        Account existingAccount = mapper.findAccountByEmail(email);
+        Optional<UserAccount> existingAccountOptional = userAccountRepository.findByEmail(email);
+
         // If email does not exist, return error message
-        if (existingAccount == null) {
+        if (!existingAccountOptional.isPresent()) {
             return "Email does not exist";
         }
 
+        UserAccount existingAccount = existingAccountOptional.get();
+
         // Check if the new username already exists
-        Account existingUsernameAccount = mapper.findAccountByName(newUsername);
+        Optional<UserAccount> existingUsernameAccountOptional = userAccountRepository.findByUsername(newUsername);
+
         // If username exists, return error message
-        if (existingUsernameAccount != null) {
+        if (existingUsernameAccountOptional.isPresent()) {
             return "New username already exists";
         }
 
@@ -83,11 +95,9 @@ public class AuthorizeServiceImpl implements AuthorizeService {
         existingAccount.setPassword(encoder.encode(newPassword));
 
         // Update account in database
-        if (mapper.updateAccount(existingAccount) > 0){
-            return null; // Reset successful, no error message
-        } else {
-            return "Error resetting account";
-        } // Reset failed, return error message
+        userAccountRepository.save(existingAccount);
+
+        return null; // Reset successful, no error message
     }
 
 }

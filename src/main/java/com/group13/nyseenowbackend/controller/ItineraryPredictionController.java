@@ -20,7 +20,7 @@ public class ItineraryPredictionController {
     }
 
     @PostMapping("itinerary/predict")
-    public Map<String, List<Map<String, Map<String, List<Integer>>>>> predictSubwayBusyness(@RequestBody Map<String, Object> attractionData) {
+    public Map<String, List<String>> predictSubwayBusyness(@RequestBody Map<String, Object> attractionData) {
         return predictionService.predictSubwayBusyness(attractionData);
     }
 

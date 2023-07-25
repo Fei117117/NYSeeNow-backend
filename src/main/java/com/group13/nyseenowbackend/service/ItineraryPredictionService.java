@@ -16,14 +16,14 @@ import java.util.Map;
 @Service
 public class ItineraryPredictionService {
 
-    public Map<String, List<Map<String, Map<String, List<Integer>>>>> predictSubwayBusyness(Map<String, Object> attractionData) {
+    public Map<String, List<String>> predictSubwayBusyness(Map<String, Object> attractionData) {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(attractionData, headers);
 
-        ResponseEntity<Map<String, List<Map<String, Map<String, List<Integer>>>>>> responseEntity =
+        ResponseEntity<Map<String, List<String>>> responseEntity =
                 restTemplate.exchange(
                         "http://localhost:5001/predict",
                         HttpMethod.POST,

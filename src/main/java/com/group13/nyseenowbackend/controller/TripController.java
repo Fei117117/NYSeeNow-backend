@@ -93,7 +93,7 @@ public class TripController {
 
 
     @GetMapping("/{username}")
-    public ResponseEntity<Map<Trip, List<TripAttractionDTO>>> getTripsByUsername(@PathVariable String username) {
+    public ResponseEntity<Map<String, List<TripAttractionDTO>>> getTripsByUsername(@PathVariable String username) {
         // Fetch trips by username
         List<Trip> trips = tripRepository.findByUsername(username);
 
@@ -105,7 +105,7 @@ public class TripController {
         }
 
         // Prepare the map to be returned
-        Map<Trip, List<TripAttractionDTO>> tripsWithAttractions = new HashMap<>();
+        Map<String, List<TripAttractionDTO>> tripsWithAttractions = new HashMap<>();
 
         // For each trip, fetch trip attractions and add them to the map
         for (Trip trip : trips) {
@@ -125,8 +125,7 @@ public class TripController {
 
                 tripAttractionDTOs.add(dto);
             }
-
-            tripsWithAttractions.put(trip, tripAttractionDTOs);
+            tripsWithAttractions.put(trip.toJSON(), tripAttractionDTOs);
         }
 
         return new ResponseEntity<>(tripsWithAttractions, HttpStatus.OK);

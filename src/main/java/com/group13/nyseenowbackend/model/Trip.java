@@ -2,8 +2,13 @@ package com.group13.nyseenowbackend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import org.json.JSONObject;
+
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "Trip")
@@ -66,6 +71,19 @@ public class Trip {
     public void setNumber_of_attractions(int number_of_attractions) {
         this.number_of_attractions = number_of_attractions;
     }
+
+    public String toJSON() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("trip_id", getTripId());
+        map.put("username", getUsername());
+        map.put("start_date", getStart_date().toString());
+        map.put("end_date", getEnd_date().toString());
+        map.put("number_of_attractions", getNumber_of_attractions());
+        JSONObject json = new JSONObject(map);
+        return json.toString();
+    }
+
+
 
 
 }

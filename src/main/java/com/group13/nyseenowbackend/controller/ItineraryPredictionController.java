@@ -23,4 +23,5 @@ public class ItineraryPredictionController {
     public Map<String, List<Map<String, Map<String, List<Integer>>>>> predictSubwayBusyness(@RequestBody Map<String, Object> attractionData) {
         return predictionService.predictSubwayBusyness(attractionData);
     }
+
 }

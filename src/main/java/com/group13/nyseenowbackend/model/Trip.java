@@ -66,4 +66,6 @@ public class Trip {
     public void setNumber_of_attractions(int number_of_attractions) {
         this.number_of_attractions = number_of_attractions;
     }
+
+
 }

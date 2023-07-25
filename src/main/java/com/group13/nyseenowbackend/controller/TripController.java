@@ -1,12 +1,10 @@
 package com.group13.nyseenowbackend.controller;
 
-import com.group13.nyseenowbackend.model.Attraction;
-import com.group13.nyseenowbackend.model.Trip;
-import com.group13.nyseenowbackend.model.TripAttraction;
-import com.group13.nyseenowbackend.model.TripCreationRequest;
+import com.group13.nyseenowbackend.model.*;
 import com.group13.nyseenowbackend.repository.AttractionRepository;
 import com.group13.nyseenowbackend.repository.TripAttractionRepository;
 import com.group13.nyseenowbackend.repository.TripRepository;
+import com.group13.nyseenowbackend.repository.UserAccountRepository;
 import com.group13.nyseenowbackend.service.TripService;
 import com.group13.nyseenowbackend.dto.TripAttractionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +22,20 @@ import java.util.stream.Collectors;
 @RequestMapping("/trip")
 public class TripController {
 
-    @Autowired
-    private TripRepository tripRepository;
-
-    @Autowired
-    private AttractionRepository attractionRepository;
-
-    @Autowired
-    private TripAttractionRepository tripAttractionRepository;
-
+    private final TripRepository tripRepository;
     private final TripService tripService;
+    private final AttractionRepository attractionRepository;
+    private final TripAttractionRepository tripAttractionRepository;
 
     @Autowired
-    public TripController(TripService tripService) {
+    public TripController(TripRepository tripRepository,
+                          TripService tripService,
+                          AttractionRepository attractionRepository,
+                          TripAttractionRepository tripAttractionRepository) {
+        this.tripRepository = tripRepository;
         this.tripService = tripService;
+        this.attractionRepository = attractionRepository;
+        this.tripAttractionRepository = tripAttractionRepository;
     }
 
     @PostMapping("/create")
@@ -129,4 +127,95 @@ public class TripController {
 
         return new ResponseEntity<>(tripsWithAttractions, HttpStatus.OK);
     }
+
+    @DeleteMapping("/delete/{username}/{tripId}")
+    public ResponseEntity<String> deleteTrip(@PathVariable String username, @PathVariable Integer tripId) {
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+        // If the trip is not found or does not belong to the given user, return NOT_FOUND
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found.", HttpStatus.NOT_FOUND);
+        }
+
+        // Delete the trip and its associated trip attractions
+        Trip trip = tripOptional.get();
+        List<TripAttraction> tripAttractions = tripAttractionRepository.findByTripId(trip.getTripId());
+        for (TripAttraction tripAttraction : tripAttractions) {
+            tripAttractionRepository.delete(tripAttraction);
+        }
+
+        tripRepository.delete(trip);
+
+        // Return a message to signify that the deletion was successful
+        return new ResponseEntity<>("Trip deleted successfully.", HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/removeAttraction/{username}/{tripId}/{attractionId}")
+    public ResponseEntity<String> removeAttractionFromTrip(@PathVariable String username, @PathVariable Integer tripId, @PathVariable Integer attractionId) {
+        // Fetch the trip and attraction from the repositories
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+        Optional<Attraction> attractionOptional = attractionRepository.findById(attractionId);
+
+        // Return an error if the trip or attraction could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found or you don't have permission to modify this trip.", HttpStatus.NOT_FOUND);
+        }
+        if (!attractionOptional.isPresent()) {
+            return new ResponseEntity<>("Attraction not found.", HttpStatus.NOT_FOUND);
+        }
+
+        // Find the TripAttraction object and delete it
+        Optional<TripAttraction> tripAttractionOptional = tripAttractionRepository.findByTripIdAndAttractionId(tripId, attractionId);
+        if (!tripAttractionOptional.isPresent()) {
+            return new ResponseEntity<>("Attraction not found in this trip.", HttpStatus.NOT_FOUND);
+        }
+
+        tripAttractionRepository.delete(tripAttractionOptional.get());
+
+        return new ResponseEntity<>("Attraction removed from trip successfully.", HttpStatus.OK);
+    }
+
+    @PostMapping("addAttraction/{username}/{tripId}/attraction/")
+    public ResponseEntity<String> addAttractionToTrip(@PathVariable Integer tripId,
+                                                      @PathVariable String username,
+                                                      @RequestBody List<TripAttractionDTO> tripAttractionDTOs) {
+        // Fetch the trip from the repository
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+
+        // Return an error if the trip could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found.", HttpStatus.NOT_FOUND);
+        }
+
+        for (TripAttractionDTO tripAttractionDTO : tripAttractionDTOs) {
+            // Check if the attraction exists
+            Optional<Attraction> attractionOptional = attractionRepository.findById(tripAttractionDTO.getAttractionId());
+            if (!attractionOptional.isPresent()) {
+                return new ResponseEntity<>("Attraction not found.", HttpStatus.NOT_FOUND);
+            }
+
+            // Create a new TripAttraction object and save it to the repository
+            TripAttraction tripAttraction = new TripAttraction();
+            tripAttraction.setTripId(tripId);
+            tripAttraction.setAttractionId(tripAttractionDTO.getAttractionId());
+            tripAttraction.setDate(tripAttractionDTO.getDate());
+            tripAttraction.setTime(tripAttractionDTO.getTime());
+
+            // Convert dayBusyness list to a comma-separated string and set it as prediction
+            String prediction = tripAttractionDTO.getDayBusyness().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+            tripAttraction.setPrediction(prediction);
+
+            tripAttractionRepository.save(tripAttraction);
+        }
+
+        return new ResponseEntity<>("Attractions added to trip successfully.", HttpStatus.OK);
+    }
+
 }
+
+
+

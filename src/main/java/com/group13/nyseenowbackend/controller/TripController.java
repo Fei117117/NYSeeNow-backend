@@ -4,7 +4,6 @@ import com.group13.nyseenowbackend.model.*;
 import com.group13.nyseenowbackend.repository.AttractionRepository;
 import com.group13.nyseenowbackend.repository.TripAttractionRepository;
 import com.group13.nyseenowbackend.repository.TripRepository;
-import com.group13.nyseenowbackend.repository.UserAccountRepository;
 import com.group13.nyseenowbackend.service.TripService;
 import com.group13.nyseenowbackend.dto.TripAttractionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +37,15 @@ public class TripController {
         this.tripAttractionRepository = tripAttractionRepository;
     }
 
+
+
     @PostMapping("/create")
     public Trip createTrip(@RequestBody TripCreationRequest request) {
+
+        System.out.println("Request received: " + request);
         // Create a Trip
         Trip trip = new Trip();
-        trip.setUsername(request.getUsername());
+        trip.setUsername(request.getUser());
         trip.setStart_date(request.getStartDate());
         trip.setEnd_date(request.getEndDate());
         trip.setNumber_of_attractions(request.getNumberOfAttractions());
@@ -58,7 +61,7 @@ public class TripController {
             List<Map<String, Object>> attractions = entry.getValue();
 
             for (Map<String, Object> attraction : attractions) {
-                Integer attractionId = (Integer) attraction.get("attraction_id");
+                Integer attractionId = (Integer) attraction.get("attractionId");
 
                 Optional<Attraction> attractionEntityOptional = attractionRepository.findById(attractionId);
                 Trip finalTrip = trip;
@@ -87,6 +90,7 @@ public class TripController {
 
         return trip;
     }
+
 
     @GetMapping("/{username}")
     public ResponseEntity<Map<Trip, List<TripAttractionDTO>>> getTripsByUsername(@PathVariable String username) {

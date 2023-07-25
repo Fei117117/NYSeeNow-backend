@@ -1,18 +1,17 @@
 package com.group13.nyseenowbackend.model;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import java.time.ZoneId;
-import java.util.Date;
 
 public class TripCreationRequest {
-    private String username;
-    private Map<String, List<Map<String, Object>>> tripDetails;
+    private String user;
+    private Map<String, List<Map<String, Object>>> tripDetails = new HashMap<>();
 
-    public String getUsername() {
-        return username;
+    public String getUser() {
+        return user;
     }
 
     public Map<String, List<Map<String, Object>>> getTripDetails() {
@@ -22,7 +21,8 @@ public class TripCreationRequest {
     public LocalDate getEndDate() {
         String latestDate = tripDetails.keySet().stream().min(String::compareTo).orElse(null);
         if (latestDate != null) {
-            return new Date(latestDate).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT'Z (zzzz)", Locale.ENGLISH);
+            return LocalDate.parse(latestDate, formatter);
         }
         return null;
     }
@@ -30,12 +30,17 @@ public class TripCreationRequest {
     public LocalDate getStartDate() {
         String earliestDate= tripDetails.keySet().stream().max(String::compareTo).orElse(null);
         if (earliestDate != null) {
-            return new Date(earliestDate).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT'Z (zzzz)", Locale.ENGLISH);
+            return LocalDate.parse(earliestDate, formatter);
         }
         return null;
     }
 
+
     public int getNumberOfAttractions() {
         return tripDetails.values().stream().mapToInt(List::size).sum();
     }
+
+
 }
+

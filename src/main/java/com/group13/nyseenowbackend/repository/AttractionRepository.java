@@ -10,5 +10,6 @@ import java.util.List;
 @Repository
 public interface AttractionRepository extends JpaRepository<Attraction, Integer> {
     List<Attraction> findByAttractionId(Integer attraction_id);
+    List<Attraction> findAll();
 }
 

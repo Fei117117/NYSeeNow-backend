@@ -25,7 +25,7 @@ public class ItineraryPredictionService {
 
         ResponseEntity<Map<String, List<String>>> responseEntity =
                 restTemplate.exchange(
-                        "http://localhost:5001/predict",
+                        "http://34.245.6.163:5001/predict",
                         HttpMethod.POST,
                         requestEntity,
                         new ParameterizedTypeReference<>() {

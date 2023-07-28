@@ -21,7 +21,7 @@ public class AttractionPredictionService {
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(attractionData, headers);
 
         ResponseEntity<Map> responseEntity = restTemplate.exchange(
-                "http://3.249.12.99:5001/AttractionPredict",
+                "http://localhost:5001/AttractionPredict",
                 HttpMethod.POST,
                 requestEntity,
                 Map.class

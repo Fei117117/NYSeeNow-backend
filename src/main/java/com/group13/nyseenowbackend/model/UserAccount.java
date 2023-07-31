@@ -2,6 +2,8 @@ package com.group13.nyseenowbackend.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "UserAccount")
 public class UserAccount {
@@ -15,6 +17,10 @@ public class UserAccount {
 
     @Column(name = "email")
     private String email;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
 
     // Getter and setter methods for username, password, and email
 
@@ -41,5 +47,15 @@ public class UserAccount {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+    }
+
 }
 

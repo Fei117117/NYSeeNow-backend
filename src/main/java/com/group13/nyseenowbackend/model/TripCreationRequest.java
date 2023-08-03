@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import java.time.ZoneId;
-
 public class TripCreationRequest {
     private String user;
     private Map<String, List<Map<String, Object>>> tripDetails = new HashMap<>();

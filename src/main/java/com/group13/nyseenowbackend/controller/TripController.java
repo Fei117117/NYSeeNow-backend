@@ -131,6 +131,7 @@ public class TripController {
         return new ResponseEntity<>(tripsWithAttractions, HttpStatus.OK);
     }
 
+
     @DeleteMapping("/delete/{username}/{tripId}")
     public ResponseEntity<String> deleteTrip(@PathVariable String username, @PathVariable Integer tripId) {
         Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
@@ -155,7 +156,7 @@ public class TripController {
 
 
     @PutMapping("/update/{username}/{tripId}")
-    public ResponseEntity<String> updateTrip(@PathVariable String username, @PathVariable Integer tripId, @RequestBody TripCreationRequest request) {
+    public ResponseEntity<String> updateTrip(@PathVariable String username, @PathVariable Integer tripId, @RequestBody List<TripAttractionRequest> request) {
         // Fetch the trip
         Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
 
@@ -167,60 +168,127 @@ public class TripController {
         // Get the existing trip
         Trip trip = tripOptional.get();
 
-        // Update the trip details
-        trip.setUsername(request.getUser());
-        trip.setStart_date(request.getStartDate());
-        trip.setEnd_date(request.getEndDate());
-        trip.setNumber_of_attractions(request.getNumberOfAttractions());
-
         // Define the DateTimeFormatter pattern
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd yyyy HH:mm:ss 'GMT'Z (zzzz)", Locale.ENGLISH);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
 
-        // Delete existing trip attractions
-        List<TripAttraction> existingTripAttractions = tripAttractionRepository.findByTripId(trip.getTripId());
-        for (TripAttraction tripAttraction : existingTripAttractions) {
-            tripAttractionRepository.delete(tripAttraction);
-        }
+        // Delete existing trip attractions (assuming you have a separate tripAttractionRepository)
+        List<TripAttraction> existingTripAttractions = tripAttractionRepository.findByTripId(tripId);
+        tripAttractionRepository.deleteAll(existingTripAttractions);
 
         // Add new trip attractions
-        for (Map.Entry<String, List<Map<String, Object>>> entry : request.getTripDetails().entrySet()) {
-            String dateString = entry.getKey();
-            List<Map<String, Object>> attractions = entry.getValue();
+        List<TripAttraction> newTripAttractions = new ArrayList<>();
+        for (TripAttractionRequest attractionRequest : request) {
+            String dateString = attractionRequest.getDate();
+            Integer attractionId = attractionRequest.getAttractionId();
+            String visitTime = attractionRequest.getTime();
+            String dayBusyness = attractionRequest.getPrediction();
 
-            for (Map<String, Object> attraction : attractions) {
-                Integer attractionId = (Integer) attraction.get("attractionId");
+            Optional<Attraction> attractionEntityOptional = attractionRepository.findById(attractionId);
+            attractionEntityOptional.ifPresent(attractionEntity -> {
 
-                Optional<Attraction> attractionEntityOptional = attractionRepository.findById(attractionId);
-                Trip finalTrip = trip;
-                attractionEntityOptional.ifPresent(attractionEntity -> {
+                // Parse the date using the formatter
+                LocalDate date = LocalDate.parse(dateString, formatter);
 
-                    String visitTime = (String) attraction.get("visitTime");
+                // Convert the dayBusyness list to a JSON string
+                String predictionString = dayBusyness.toString();
 
-                    // Parse the date using the formatter
-                    LocalDate date = LocalDate.parse(dateString, formatter);
-
-                    List<Integer> dayBusyness = (List<Integer>) attraction.get("day_busyness");
-                    String predictionString = dayBusyness.toString();
-
-                    // Save each TripAttraction
-                    TripAttraction tripAttraction = new TripAttraction();
-                    tripAttraction.setTripId(finalTrip.getTripId());
-                    tripAttraction.setAttractionId(attractionEntity.getAttractionId());
-                    tripAttraction.setDate(date);
-                    tripAttraction.setTime(LocalTime.parse(visitTime));
-                    tripAttraction.setPrediction(predictionString);
-                    tripAttractionRepository.save(tripAttraction);
-
-                });
-            }
+                // Save each TripAttraction
+                TripAttraction tripAttraction = new TripAttraction();
+                tripAttraction.setTripId(tripId); // Use the provided tripId
+                tripAttraction.setAttractionId(attractionEntity.getAttractionId());
+                tripAttraction.setDate(date);
+                tripAttraction.setTime(LocalTime.parse(visitTime));
+                tripAttraction.setPrediction(predictionString);
+                newTripAttractions.add(tripAttraction);
+            });
         }
 
-        // Save updated trip
-        tripRepository.save(trip);
+        // Save new trip attractions
+        tripAttractionRepository.saveAll(newTripAttractions);
 
-        return new ResponseEntity<>("Trip updated successfully.", HttpStatus.OK);
+        return new ResponseEntity<>("Trip attractions updated successfully.", HttpStatus.OK);
     }
 
+
+    @GetMapping("/tripAttraction/{username}/{tripId}")
+    public ResponseEntity<List<TripAttraction>> getTripAttractions(@PathVariable String username, @PathVariable Integer tripId) {
+        // Fetch the trip from the repository
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+        // Return an error if the trip could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        // Fetch the TripAttraction objects
+        List<TripAttraction> tripAttractions = tripAttractionRepository.findByTripId(tripId);
+
+        return new ResponseEntity<>(tripAttractions, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/removeAttraction/{username}/{tripId}/{attractionId}")
+    public ResponseEntity<String> removeAttractionFromTrip(@PathVariable String username, @PathVariable Integer tripId, @PathVariable Integer attractionId) {
+        // Fetch the trip and attraction from the repositories
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+        Optional<Attraction> attractionOptional = attractionRepository.findById(attractionId);
+
+        // Return an error if the trip or attraction could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found or you don't have permission to modify this trip.", HttpStatus.NOT_FOUND);
+        }
+        if (!attractionOptional.isPresent()) {
+            return new ResponseEntity<>("Attraction not found.", HttpStatus.NOT_FOUND);
+        }
+
+        // Find the TripAttraction object and delete it
+        Optional<TripAttraction> tripAttractionOptional = tripAttractionRepository.findByTripIdAndAttractionId(tripId, attractionId);
+        if (!tripAttractionOptional.isPresent()) {
+            return new ResponseEntity<>("Attraction not found in this trip.", HttpStatus.NOT_FOUND);
+        }
+
+        tripAttractionRepository.delete(tripAttractionOptional.get());
+
+        return new ResponseEntity<>("Attraction removed from trip successfully.", HttpStatus.OK);
+    }
+
+    @PostMapping("addAttraction/{username}/{tripId}/attraction/")
+    public ResponseEntity<String> addAttractionToTrip(@PathVariable Integer tripId,
+                                                      @PathVariable String username,
+                                                      @RequestBody List<TripAttractionDTO> tripAttractionDTOs) {
+        // Fetch the trip from the repository
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+
+        // Return an error if the trip could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found.", HttpStatus.NOT_FOUND);
+        }
+
+        for (TripAttractionDTO tripAttractionDTO : tripAttractionDTOs) {
+            // Check if the attraction exists
+            Optional<Attraction> attractionOptional = attractionRepository.findById(tripAttractionDTO.getAttractionId());
+            if (!attractionOptional.isPresent()) {
+                return new ResponseEntity<>("Attraction not found.", HttpStatus.NOT_FOUND);
+            }
+
+            // Create a new TripAttraction object and save it to the repository
+            TripAttraction tripAttraction = new TripAttraction();
+            tripAttraction.setTripId(tripId);
+            tripAttraction.setAttractionId(tripAttractionDTO.getAttractionId());
+            tripAttraction.setDate(tripAttractionDTO.getDate());
+            tripAttraction.setTime(tripAttractionDTO.getTime());
+
+            // Convert dayBusyness list to a comma-separated string and set it as prediction
+            String prediction = tripAttractionDTO.getDayBusyness().stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(","));
+            tripAttraction.setPrediction(prediction);
+
+            tripAttractionRepository.save(tripAttraction);
+        }
+
+        return new ResponseEntity<>("Attractions added to trip successfully.", HttpStatus.OK);
+    }
 
 }
 

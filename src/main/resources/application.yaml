@@ -1,11 +1,36 @@
+#spring:
+  #datasource:
+    #url: jdbc:postgresql://34.147.225.91:5432/NYSeeNow
+    #username: Group13
+    #password: 13NYSeeNow13
+    #driver-class-name: org.postgresql.Driver
+  #jpa:
+    #database: POSTGRESQL
+    #database-platform: org.hibernate.dialect.PostgreSQLDialect
+    #hibernate:
+      #ddl-auto: update
+    #show-sql: true
+    #properties:
+      #hibernate:
+        #format_sql: true
+        #use_sql_comments: true
+        #default_schema: busyness
+
+
+
+
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://nyseenow.cbqpbir87k5q.eu-west-1.rds.amazonaws.com:5432/UserAccount
     username: fei
     password: 22200125
-  jpa:
-    show-sql: true
+  mvc:
+    content-negotiation:
+      favor-parameter: true
+    jpa:
+      show-sql: true
     hibernate:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -14,9 +39,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        hbm2ddl.auto: update
+        hbm2ddl:
+          auto: update
         jdbc:
           lob:
             non_contextual_creation: true
         temp:
           use_jdbc_metadata_defaults: false
+logging:
+  level:
+    org.springframework: DEBUG

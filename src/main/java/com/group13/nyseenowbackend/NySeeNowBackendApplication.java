@@ -26,7 +26,7 @@ public class NySeeNowBackendApplication {
                 // Allow GET, POST, PUT, DELETE methods
                 // Allow all headers
                 // Allow credentials
-                registry.addMapping("/**")
+                registry.addMapping("/*")
                         .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")

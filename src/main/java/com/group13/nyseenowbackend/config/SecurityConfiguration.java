@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import javax.sql.DataSource;
 import java.io.IOException;
 
@@ -54,6 +55,8 @@ public class SecurityConfiguration {
                         .disable()) // Disables CSRF tokens
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(this::authenticationFailureHandler)) // Actions on unauthenticated access
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .build();
     }
 

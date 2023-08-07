@@ -25,12 +25,8 @@ public class TripService {
 
 
     public List<Trip> getUserTrips(String username) {
-        // Fetch user from the database
 
-        // Fetch the trips associated with this user
         List<Trip> userTrips = tripRepository.findByUsername(username);
-
-        // In a real world scenario, you might want to also fetch the attractions associated with each trip here
 
         return userTrips;
     }

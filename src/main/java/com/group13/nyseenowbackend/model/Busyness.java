@@ -1,12 +1,5 @@
 package com.group13.nyseenowbackend.model;
 
-/**
- * @Name:NYSeeNow-backend
- * @Description:
- * @Author:Weitao Li
- * @Date:29/07/2023
- */
-
 import jakarta.persistence.*;
 import lombok.Data;
 

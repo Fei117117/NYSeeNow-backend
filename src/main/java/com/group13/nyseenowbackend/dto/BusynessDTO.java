@@ -1,11 +1,5 @@
 package com.group13.nyseenowbackend.dto;
 
-/**
- * @Name:NYSeeNow-backend
- * @Description:
- * @Author:Weitao Li
- * @Date:29/07/2023
- */
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

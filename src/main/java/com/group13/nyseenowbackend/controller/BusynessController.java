@@ -1,11 +1,5 @@
 package com.group13.nyseenowbackend.controller;
 
-/**
- * @Name:NYSeeNow-backend
- * @Description:
- * @Author:Weitao Li
- * @Date:29/07/2023
- */
 
 import com.group13.nyseenowbackend.dto.BusynessDTO;
 import jakarta.validation.Valid;

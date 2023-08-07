@@ -8,6 +8,5 @@ public class TripAttractionId implements Serializable {
     private int attractionId;
     private LocalTime time;
 
-    // Constructors, getters, and setters
 }
 

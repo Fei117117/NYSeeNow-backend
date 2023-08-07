@@ -12,8 +12,6 @@ public class TripAttractionDTO {
     private LocalTime time;
     private List<Integer> dayBusyness;
 
-    // Getters and Setters
-
     public Integer getTripId() {
         return tripId;
     }

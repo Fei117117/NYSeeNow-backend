@@ -1,11 +1,5 @@
 package com.group13.nyseenowbackend.repository;
 
-/**
- * @Name:NYSeeNow-backend
- * @Description:
- * @Author:Weitao Li
- * @Date:29/07/2023
- */
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

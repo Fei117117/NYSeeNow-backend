@@ -25,8 +25,11 @@ public class BusynessController {
 
     @ResponseBody
     @GetMapping("/get")
-    public ResponseEntity<BusynessDTO> getBusynessByVenueNameDayAndHour(@Valid @RequestBody BusynessDTO busynessDTO) {
-        return handleBusynessRequest(busynessDTO.getName(), busynessDTO.getDay(), busynessDTO.getHour());
+    public ResponseEntity<BusynessDTO> getBusynessByVenueNameDayAndHour(
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "day") String day,
+            @RequestParam(name = "hour") String hour) {
+        return handleBusynessRequest(name, day, hour);
     }
 
     @PostMapping("/create")

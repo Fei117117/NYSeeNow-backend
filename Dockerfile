@@ -8,7 +8,7 @@ WORKDIR /app
 COPY target/NYSeeNow-backend-0.0.1-SNAPSHOT.jar .
 
 # Expose the required port(s)
-EXPOSE 8083
+EXPOSE 8080
 
 # Define the command to run the application
 CMD ["java", "-jar", "NYSeeNow-backend-0.0.1-SNAPSHOT.jar"]

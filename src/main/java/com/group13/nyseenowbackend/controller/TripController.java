@@ -131,6 +131,7 @@ public class TripController {
         return new ResponseEntity<>(tripsWithAttractions, HttpStatus.OK);
     }
 
+
     @DeleteMapping("/delete/{username}/{tripId}")
     public ResponseEntity<String> deleteTrip(@PathVariable String username, @PathVariable Integer tripId) {
         Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
@@ -153,6 +154,77 @@ public class TripController {
         return new ResponseEntity<>("Trip deleted successfully.", HttpStatus.OK);
     }
 
+
+    @PutMapping("/update/{username}/{tripId}")
+    public ResponseEntity<String> updateTrip(@PathVariable String username, @PathVariable Integer tripId, @RequestBody List<TripAttractionRequest> request) {
+        // Fetch the trip
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+        // If the trip is not found or does not belong to the given user, return NOT_FOUND
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>("Trip not found.", HttpStatus.NOT_FOUND);
+        }
+
+        // Get the existing trip
+        Trip trip = tripOptional.get();
+
+        // Define the DateTimeFormatter pattern
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH);
+
+        // Delete existing trip attractions (assuming you have a separate tripAttractionRepository)
+        List<TripAttraction> existingTripAttractions = tripAttractionRepository.findByTripId(tripId);
+        tripAttractionRepository.deleteAll(existingTripAttractions);
+
+        // Add new trip attractions
+        List<TripAttraction> newTripAttractions = new ArrayList<>();
+        for (TripAttractionRequest attractionRequest : request) {
+            String dateString = attractionRequest.getDate();
+            Integer attractionId = attractionRequest.getAttractionId();
+            String visitTime = attractionRequest.getTime();
+            String dayBusyness = attractionRequest.getPrediction();
+
+            Optional<Attraction> attractionEntityOptional = attractionRepository.findById(attractionId);
+            attractionEntityOptional.ifPresent(attractionEntity -> {
+
+                // Parse the date using the formatter
+                LocalDate date = LocalDate.parse(dateString, formatter);
+
+                // Convert the dayBusyness list to a JSON string
+                String predictionString = dayBusyness.toString();
+
+                // Save each TripAttraction
+                TripAttraction tripAttraction = new TripAttraction();
+                tripAttraction.setTripId(tripId); // Use the provided tripId
+                tripAttraction.setAttractionId(attractionEntity.getAttractionId());
+                tripAttraction.setDate(date);
+                tripAttraction.setTime(LocalTime.parse(visitTime));
+                tripAttraction.setPrediction(predictionString);
+                newTripAttractions.add(tripAttraction);
+            });
+        }
+
+        // Save new trip attractions
+        tripAttractionRepository.saveAll(newTripAttractions);
+
+        return new ResponseEntity<>("Trip attractions updated successfully.", HttpStatus.OK);
+    }
+
+
+    @GetMapping("/tripAttraction/{username}/{tripId}")
+    public ResponseEntity<List<TripAttraction>> getTripAttractions(@PathVariable String username, @PathVariable Integer tripId) {
+        // Fetch the trip from the repository
+        Optional<Trip> tripOptional = tripRepository.findByTripIdAndUsername(tripId, username);
+
+        // Return an error if the trip could not be found
+        if (!tripOptional.isPresent()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        // Fetch the TripAttraction objects
+        List<TripAttraction> tripAttractions = tripAttractionRepository.findByTripId(tripId);
+
+        return new ResponseEntity<>(tripAttractions, HttpStatus.OK);
+    }
 
     @DeleteMapping("/removeAttraction/{username}/{tripId}/{attractionId}")
     public ResponseEntity<String> removeAttractionFromTrip(@PathVariable String username, @PathVariable Integer tripId, @PathVariable Integer attractionId) {

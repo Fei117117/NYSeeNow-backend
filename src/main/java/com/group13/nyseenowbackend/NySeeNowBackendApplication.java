@@ -26,10 +26,12 @@ public class NySeeNowBackendApplication {
                 // Allow GET, POST, PUT, DELETE methods
                 // Allow all headers
                 // Allow credentials
-                registry.addMapping("/*").allowedOrigins("")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE").allowedHeaders("*").allowCredentials(true);
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:3000")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
-
         };
     }
 
